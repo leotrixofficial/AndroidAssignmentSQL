@@ -102,7 +102,7 @@ public class ProductActivity extends AppCompatActivity {
         if (!productExists(productName)) {
             myDB.execSQL("INSERT INTO " + productsTableName + " VALUES('" + productName + "'," +
                     cost + ");");
-            updateProducts();
+            updateProducts(productName);
             displayMessage(productName + " added!");
         }
     }
@@ -195,7 +195,7 @@ public class ProductActivity extends AppCompatActivity {
             }
             productsCursor.moveToNext();
         }
-        // If code reaches this point, the product doesn't exist
+        // If code reaches this point, the product doesn't exist so return false
         return false;
     }
 
@@ -203,6 +203,22 @@ public class ProductActivity extends AppCompatActivity {
         // Products adapter for list view
         productsAdapter = new ArrayAdapter<>(this, R.layout.activity_productslistview,
                 getProducts());
+        // Products list view
+        productsListView.setAdapter(productsAdapter);
+    }
+
+    protected void updateProducts(String newProductName) {
+        String[] totalProducts = new String[getProducts().length+1],
+                tempProducts = getProducts();
+
+        totalProducts[0] = newProductName;
+        for (int i = 1; i <= getProducts().length; i++)
+            totalProducts[i] = tempProducts[i-1];
+
+        // Products adapter for list view
+        productsAdapter = new ArrayAdapter<>(this, R.layout.activity_productslistview,
+                totalProducts);
+
         // Products list view
         productsListView.setAdapter(productsAdapter);
     }
