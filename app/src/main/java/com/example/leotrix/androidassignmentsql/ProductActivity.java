@@ -102,7 +102,7 @@ public class ProductActivity extends AppCompatActivity {
         if (!productExists(productName)) {
             myDB.execSQL("INSERT INTO " + productsTableName + " VALUES('" + productName + "'," +
                     cost + ");");
-            updateProducts(productName);
+            addProductToListView(productName);
             displayMessage(productName + " added!");
         }
     }
@@ -200,6 +200,8 @@ public class ProductActivity extends AppCompatActivity {
     }
 
     protected void updateProducts() {
+        // Open or create the database
+        myDB = openOrCreateDatabase(databaseName, MODE_PRIVATE, null);
         // Products adapter for list view
         productsAdapter = new ArrayAdapter<>(this, R.layout.activity_productslistview,
                 getProducts());
@@ -207,7 +209,7 @@ public class ProductActivity extends AppCompatActivity {
         productsListView.setAdapter(productsAdapter);
     }
 
-    protected void updateProducts(String newProductName) {
+    protected void addProductToListView(String newProductName) {
         String[] totalProducts = new String[getProducts().length+1],
                 tempProducts = getProducts();
 
@@ -222,4 +224,20 @@ public class ProductActivity extends AppCompatActivity {
         // Products list view
         productsListView.setAdapter(productsAdapter);
     }
+//
+//    protected void deleteProductFromListView(String productName) {
+//        String[] totalProducts = new String[getProducts().length+1],
+//                tempProducts = getProducts();
+//
+//        if (productExists(productName)) {
+//            productsCursor.moveToFirst(); // Move to first row in table
+//            // Loop to the end of table
+//            while (!productsCursor.isAfterLast()) {
+//                if (productName.equalsIgnoreCase(productsCursor.getString(0))) {
+//
+//                }
+//                productsCursor.moveToNext();
+//            }
+//        }
+//    }
 }
