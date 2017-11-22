@@ -40,12 +40,6 @@ public class LoginActivity extends AppCompatActivity {
         // Initialize Login and Products as tables in the database
         initializeLoginAndProductsTables();
 
-        // Insert admin login values but ignore if admin login values already exists
-//        Cursor cursor = myDB.rawQuery("SELECT * FROM" + loginTableName, null);
-//        if (cursor.getCount() < 1)
-//            myDB.execSQL("INSERT INTO " + loginTableName + " VALUES('admin','root');");
-//        cursor.close();
-
         // Set an onClick listener for login button
         Button loginButton = (Button) findViewById(R.id.loginButton);
         loginButton.setOnClickListener(new View.OnClickListener() {
@@ -62,13 +56,17 @@ public class LoginActivity extends AppCompatActivity {
                 + "(Username VARCHAR,Password VARCHAR);");
         myDB.execSQL("CREATE TABLE IF NOT EXISTS " + productsTableName
                 + " (Name VARCHAR,Cost DOUBLE)");
+
+        // Select all from the Login table
+        loginCursor = myDB.rawQuery("SELECT * FROM " + loginTableName, null);
+
+        // Insert admin login values but ignore if admin login values already exists
+        if (loginCursor.getCount() < 1)
+            myDB.execSQL("INSERT INTO " + loginTableName + " VALUES('admin','root');");
     }
 
     // Validate user input and login
     protected void login(View view) {
-        // Select all from the Login table
-        loginCursor = myDB.rawQuery("Select * from " + loginTableName, null);
-
         // Move cursor to start of table
         loginCursor.moveToFirst();
 
