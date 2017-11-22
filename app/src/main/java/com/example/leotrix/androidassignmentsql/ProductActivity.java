@@ -81,9 +81,21 @@ public class ProductActivity extends AppCompatActivity {
         // Products ListView items on click listener
         productsListView.setOnItemClickListener(new android.widget.AdapterView.OnItemClickListener() {
             @Override
-            public void onItemClick(AdapterView<?> parent, View view,int position, long id) {
-                String product = (String) productsListView.getItemAtPosition(position);
+            public void onItemClick(AdapterView<?> parent, View view,int index, long id) {
+                String product = (String) productsListView.getItemAtPosition(index);
                 displayMessage("Cost of " + product + ": $" + getCostOfProduct(product));
+            }
+        });
+
+        // Make each item long clickable
+        productsListView.setLongClickable(true);
+
+        // Products ListView items on long click listener for deleting products
+        productsListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            public boolean onItemLongClick(AdapterView<?> parent, View view,int index, long id) {
+                String product = (String) productsListView.getItemAtPosition(index);
+                deleteProduct(product);
+                return false;
             }
         });
     }
@@ -107,15 +119,37 @@ public class ProductActivity extends AppCompatActivity {
 
     // Deletes product from table
     protected void deleteProduct(String productName) {
-        myDB.execSQL("DELETE * FROM " + productsTableName + " WHERE Name = '" + productName + "'");
-        updateProducts();
-        displayMessage(productName + " deleted!");
-        restart();
+        final String tempProductName = productName;
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Delete this product?");
+        builder.setMessage("Are you sure you want to delete " + productName + "?");
+
+        builder.setNegativeButton("NO", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                // Do nothing
+                dialog.dismiss();
+            }
+        });
+
+        builder.setPositiveButton("YES", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                myDB.execSQL("DELETE FROM " + productsTableName + " WHERE Name = '" +
+                        tempProductName + "'");
+                updateProducts();
+                displayMessage(tempProductName + " deleted!");
+                restart();
+                // close the dialog
+                dialog.dismiss();
+            }
+        });
+
+        AlertDialog alert = builder.create();
+        alert.show();
     }
 
     protected void deleteAllProducts() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-
         builder.setTitle("Delete all products");
         builder.setMessage("Are you sure you want to delete all products?");
 
@@ -215,36 +249,4 @@ public class ProductActivity extends AppCompatActivity {
         // Products list view
         productsListView.setAdapter(productsAdapter);
     }
-
-//    protected void addProductToListView(String newProductName) {
-//        String[] totalProducts = new String[getProducts().length+1],
-//                tempProducts = getProducts();
-//
-//        totalProducts[0] = newProductName;
-//        for (int i = 1; i <= getProducts().length; i++)
-//            totalProducts[i] = tempProducts[i-1];
-//
-//        // Products adapter for list view
-//        productsAdapter = new ArrayAdapter<>(this, R.layout.activity_productslistview,
-//                totalProducts);
-//
-//        // Products list view
-//        productsListView.setAdapter(productsAdapter);
-//    }
-//
-//    protected void deleteProductFromListView(String productName) {
-//        String[] totalProducts = new String[getProducts().length+1],
-//                tempProducts = getProducts();
-//
-//        if (productExists(productName)) {
-//            productsCursor.moveToFirst(); // Move to first row in table
-//            // Loop to the end of table
-//            while (!productsCursor.isAfterLast()) {
-//                if (productName.equalsIgnoreCase(productsCursor.getString(0))) {
-//
-//                }
-//                productsCursor.moveToNext();
-//            }
-//        }
-//    }
 }
