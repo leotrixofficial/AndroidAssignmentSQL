@@ -41,7 +41,10 @@ public class LoginActivity extends AppCompatActivity {
         initializeLoginAndProductsTables();
 
         // Insert admin login values but ignore if admin login values already exists
-        myDB.execSQL("INSERT INTO " + loginTableName + " VALUES('admin','root');");
+//        Cursor cursor = myDB.rawQuery("SELECT * FROM" + loginTableName, null);
+//        if (cursor.getCount() < 1)
+//            myDB.execSQL("INSERT INTO " + loginTableName + " VALUES('admin','root');");
+//        cursor.close();
 
         // Set an onClick listener for login button
         Button loginButton = (Button) findViewById(R.id.loginButton);
@@ -51,13 +54,6 @@ public class LoginActivity extends AppCompatActivity {
                 login(view);
             }
         });
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        // Delete all login data
-        myDB.execSQL("DELETE * FROM" + loginTableName);
     }
 
     // Creates a Login table and a Products table if they don't already exist
@@ -81,8 +77,8 @@ public class LoginActivity extends AppCompatActivity {
                 passwordFromDB = loginCursor.getString(1);
 
         // Match username and password to input
-        if (usernameFromDB.equalsIgnoreCase(usernameText.getText().toString()) &&
-                passwordFromDB.equalsIgnoreCase(passwordText.getText().toString())) {
+        if (usernameFromDB.equals(usernameText.getText().toString()) &&
+                passwordFromDB.equals(passwordText.getText().toString())) {
             // Open new activity
             startActivity(new Intent(view.getContext(), ProductActivity.class));
 
