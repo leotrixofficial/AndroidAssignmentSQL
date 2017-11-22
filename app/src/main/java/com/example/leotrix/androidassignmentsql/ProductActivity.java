@@ -1,6 +1,7 @@
 package com.example.leotrix.androidassignmentsql;
 
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
@@ -17,12 +18,8 @@ import android.widget.Toast;
 import java.util.ArrayList;
 
 public class ProductActivity extends AppCompatActivity {
-    // Database and table names
-    protected String databaseName = "myDB",
-            productsTableName = "Products";
-
-    // Database for Login and Products tables
-    protected SQLiteDatabase myDB;
+    // Products adapter for list view
+    protected ArrayAdapter productsAdapter;
 
     // Products cursor for querying products data from database
     protected Cursor productsCursor;
@@ -33,8 +30,12 @@ public class ProductActivity extends AppCompatActivity {
     // ListView for products
     protected ListView productsListView;
 
-    // Products adapter for list view
-    protected ArrayAdapter productsAdapter;
+    // Database for Login and Products tables
+    protected SQLiteDatabase myDB;
+
+    // Database and table names
+    protected String databaseName = "myDB",
+            productsTableName = "Products";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,11 +55,7 @@ public class ProductActivity extends AppCompatActivity {
         // Select all from products table
         productsCursor = myDB.rawQuery("SELECT * FROM " + productsTableName, null);
 
-//        myDB.execSQL("INSERT INTO " + productsTableName + " VALUES('Apple',1.25);");
-//        myDB.execSQL("INSERT INTO " + productsTableName + " VALUES('Banana',1.20);");
-//        myDB.execSQL("INSERT INTO " + productsTableName + " VALUES('Lettuce',1.55);");
-
-        // Update products to ListView
+        // Update products to ListView with products from the database
         updateProducts();
 
         // Buttons
@@ -102,8 +99,9 @@ public class ProductActivity extends AppCompatActivity {
         if (!productExists(productName)) {
             myDB.execSQL("INSERT INTO " + productsTableName + " VALUES('" + productName + "'," +
                     cost + ");");
-            addProductToListView(productName);
+            updateProducts();
             displayMessage(productName + " added!");
+            restart();
         }
     }
 
@@ -112,6 +110,7 @@ public class ProductActivity extends AppCompatActivity {
         myDB.execSQL("DELETE * FROM " + productsTableName + " WHERE Name = '" + productName + "'");
         updateProducts();
         displayMessage(productName + " deleted!");
+        restart();
     }
 
     protected void deleteAllProducts() {
@@ -133,6 +132,8 @@ public class ProductActivity extends AppCompatActivity {
                 // If yes is clicked, delete all from products table.
                 myDB.execSQL("DELETE FROM " + productsTableName);
                 updateProducts();
+                displayMessage("All products deleted!");
+                restart();
                 // close the dialog
                 dialog.dismiss();
             }
@@ -160,7 +161,7 @@ public class ProductActivity extends AppCompatActivity {
     // Returns the products from the database
     protected String[] getProducts() {
         // Initialize products ArrayList
-        ArrayList<String> productsStrArrayList = new ArrayList<>();
+        ArrayList<String> tempProductsStrArrayList = new ArrayList<>();
         // Move to first row
         productsCursor.moveToFirst();
         // If there are products in the table
@@ -168,15 +169,15 @@ public class ProductActivity extends AppCompatActivity {
             // Loop to the end of table
             while (!productsCursor.isAfterLast()) {
                 // Add product name to string array
-                productsStrArrayList.add(productsCursor.getString(0));
+                tempProductsStrArrayList.add(productsCursor.getString(0));
                 // Move to next row
                 productsCursor.moveToNext();
             }
             // Convert ArrayList to String array
-            String[] productsStrArray = new String[productsStrArrayList.size()];
-            for (int i = 0; i < productsStrArray.length; i++)
-                productsStrArray[i] = productsStrArrayList.get(i);
-            return productsStrArray;
+            String[] tempProductsStrArray = new String[tempProductsStrArrayList.size()];
+            for (int i = 0; i < tempProductsStrArray.length; i++)
+                tempProductsStrArray[i] = tempProductsStrArrayList.get(i);
+            return tempProductsStrArray;
         } else {
             String[] temp = {""};
             return temp;
@@ -199,31 +200,37 @@ public class ProductActivity extends AppCompatActivity {
         return false;
     }
 
+    // Restarts activity
+    protected void restart() {
+        // Open new activity
+        startActivity(new Intent(this, ProductActivity.class));
+        // Close current activity
+        this.finish();
+    }
+
+    // Updates the ListView of products
     protected void updateProducts() {
-        // Open or create the database
-        myDB = openOrCreateDatabase(databaseName, MODE_PRIVATE, null);
         // Products adapter for list view
-        productsAdapter = new ArrayAdapter<>(this, R.layout.activity_productslistview,
-                getProducts());
+        productsAdapter = new ArrayAdapter<>(this, R.layout.activity_productslistview, getProducts());
         // Products list view
         productsListView.setAdapter(productsAdapter);
     }
 
-    protected void addProductToListView(String newProductName) {
-        String[] totalProducts = new String[getProducts().length+1],
-                tempProducts = getProducts();
-
-        totalProducts[0] = newProductName;
-        for (int i = 1; i <= getProducts().length; i++)
-            totalProducts[i] = tempProducts[i-1];
-
-        // Products adapter for list view
-        productsAdapter = new ArrayAdapter<>(this, R.layout.activity_productslistview,
-                totalProducts);
-
-        // Products list view
-        productsListView.setAdapter(productsAdapter);
-    }
+//    protected void addProductToListView(String newProductName) {
+//        String[] totalProducts = new String[getProducts().length+1],
+//                tempProducts = getProducts();
+//
+//        totalProducts[0] = newProductName;
+//        for (int i = 1; i <= getProducts().length; i++)
+//            totalProducts[i] = tempProducts[i-1];
+//
+//        // Products adapter for list view
+//        productsAdapter = new ArrayAdapter<>(this, R.layout.activity_productslistview,
+//                totalProducts);
+//
+//        // Products list view
+//        productsListView.setAdapter(productsAdapter);
+//    }
 //
 //    protected void deleteProductFromListView(String productName) {
 //        String[] totalProducts = new String[getProducts().length+1],

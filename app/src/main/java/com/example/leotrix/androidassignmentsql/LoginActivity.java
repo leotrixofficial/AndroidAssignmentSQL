@@ -11,19 +11,19 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 public class LoginActivity extends AppCompatActivity {
-    // Database and table names
-    protected String databaseName = "myDB",
-            loginTableName = "Login",
-            productsTableName = "Products";
-
-    // Database for Login and Products tables
-    protected SQLiteDatabase myDB;
-
     // Login cursor for querying login data from database
     protected Cursor loginCursor;
 
     // EditText's for username and password input
     protected EditText usernameText, passwordText;
+
+    // Database for Login and Products tables
+    protected SQLiteDatabase myDB;
+
+    // Database and table names
+    protected String databaseName = "myDB",
+            loginTableName = "Login",
+            productsTableName = "Products";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
