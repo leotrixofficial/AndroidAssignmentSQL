@@ -81,12 +81,12 @@ public class ProductActivity extends AppCompatActivity {
             }
         });
 
-        // productsListView item on click listener
+        // Products ListView items on click listener
         productsListView.setOnItemClickListener(new android.widget.AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view,int position, long id) {
                 String product = (String) productsListView.getItemAtPosition(position);
-                displayMessage("Cost of " + product + ": " + getCostOfProduct(product));
+                displayMessage("Cost of " + product + ": $" + getCostOfProduct(product));
             }
         });
     }
@@ -148,9 +148,9 @@ public class ProductActivity extends AppCompatActivity {
         productsCursor.moveToFirst();
         // Loop to the end of table
         while (!productsCursor.isAfterLast()) {
-            String tempStr = productsCursor.getString(1);
-            if (tempStr.equalsIgnoreCase(productName))
-                return tempStr;
+            // If product name matches, return cost!
+            if (productsCursor.getString(0).equalsIgnoreCase(productName))
+                return productsCursor.getString(1);
             // Move to next row
             productsCursor.moveToNext();
         }
