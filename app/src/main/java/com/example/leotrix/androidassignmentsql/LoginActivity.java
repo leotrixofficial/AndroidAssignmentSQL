@@ -1,5 +1,6 @@
 package com.example.leotrix.androidassignmentsql;
 
+import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
@@ -18,8 +19,8 @@ public class LoginActivity extends AppCompatActivity {
     // Database for Login and Products tables
     protected SQLiteDatabase myDB;
 
-    // Cursors for querying through the database
-    protected Cursor loginCursor, productsCursor;
+    // Login cursor for querying login data from database
+    protected Cursor loginCursor;
 
     // EditText's for username and password input
     protected EditText usernameText, passwordText;
@@ -82,6 +83,12 @@ public class LoginActivity extends AppCompatActivity {
         // Match username and password to input
         if (usernameFromDB.equalsIgnoreCase(usernameText.getText().toString()) &&
                 passwordFromDB.equalsIgnoreCase(passwordText.getText().toString())) {
+            // Open new activity
+            startActivity(new Intent(view.getContext(), ProductActivity.class));
+
+            // Close login activity
+            this.finish();
+
             // Show message if successful
             Toast.makeText(view.getContext(), "Login successful!", Toast.LENGTH_SHORT).show();
         } else {
