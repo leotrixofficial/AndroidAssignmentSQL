@@ -120,6 +120,7 @@ public class LoginActivity extends AppCompatActivity {
             myDB.execSQL("INSERT INTO " + loginTableName + " VALUES('" + newUsername + "','" +
                     newPassword + "');");
             restart();
+            Toast.makeText(this, "New login successfully created!", Toast.LENGTH_SHORT).show();     
         } else
             Toast.makeText(this, newUsername + " already exists!", Toast.LENGTH_SHORT).show();
     }
