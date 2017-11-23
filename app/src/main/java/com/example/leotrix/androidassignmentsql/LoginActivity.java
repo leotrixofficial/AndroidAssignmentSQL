@@ -28,7 +28,7 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_login);
 
         // Assign EditText's
         usernameText = (EditText) findViewById(R.id.usernameText);
@@ -45,7 +45,16 @@ public class LoginActivity extends AppCompatActivity {
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                login(view);
+                login();
+            }
+        });
+
+        // Set an onClick listener for register button
+        Button registerButton = (Button) findViewById(R.id.registerButton);
+        registerButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                register();
             }
         });
     }
@@ -61,33 +70,73 @@ public class LoginActivity extends AppCompatActivity {
         loginCursor = myDB.rawQuery("SELECT * FROM " + loginTableName, null);
 
         // Insert admin login values but ignore if admin login values already exists
-        if (loginCursor.getCount() < 1)
+        if (!userExists("admin"))
             myDB.execSQL("INSERT INTO " + loginTableName + " VALUES('admin','root');");
     }
 
     // Validate user input and login
-    protected void login(View view) {
+    protected void login() {
         // Move cursor to start of table
         loginCursor.moveToFirst();
+        // While not after the last row in the table
+        while (!loginCursor.isAfterLast()) {
+            // Get username and password from table
+            String usernameFromDB = loginCursor.getString(0),
+                    passwordFromDB = loginCursor.getString(1);
 
-        // Get username and password from table
-        String usernameFromDB = loginCursor.getString(0),
-                passwordFromDB = loginCursor.getString(1);
-
-        // Match username and password to input
-        if (usernameFromDB.equals(usernameText.getText().toString()) &&
-                passwordFromDB.equals(passwordText.getText().toString())) {
-            // Open new activity
-            startActivity(new Intent(view.getContext(), ProductActivity.class));
-
-            // Close login activity
-            this.finish();
-
-            // Show message if successful
-            Toast.makeText(view.getContext(), "Login successful!", Toast.LENGTH_SHORT).show();
-        } else {
-            // Show message if not successful
-            Toast.makeText(view.getContext(), "Login failed!", Toast.LENGTH_SHORT).show();
+            if (usernameFromDB.equals(usernameText.getText().toString()) &&
+                    passwordFromDB.equals(passwordText.getText().toString())) {
+                // Open new activity
+                startActivity(new Intent(this, ProductActivity.class));
+                // Close login activity
+                this.finish();
+                // Show message if successful
+                Toast.makeText(this, "Login successful!", Toast.LENGTH_SHORT).show();
+                // Return out of method
+                return;
+            }
+            // Move to next row
+            loginCursor.moveToNext();
         }
+
+        // Show message if not successful
+        Toast.makeText(this, "Login failed!", Toast.LENGTH_SHORT).show();
+    }
+
+    // Restarts activity
+    protected void restart() {
+        // Open new activity
+        startActivity(new Intent(this, LoginActivity.class));
+        // Close current activity
+        this.finish();
+    }
+
+    protected void register() {
+        String newUsername = usernameText.getText().toString(), newPassword = passwordText.getText()
+                .toString();
+        // If the username doesn't already exist in the database
+        if (!userExists(newUsername)) {
+            // Add new username and password to login table
+            myDB.execSQL("INSERT INTO " + loginTableName + " VALUES('" + newUsername + "','" +
+                    newPassword + "');");
+            restart();
+        } else
+            Toast.makeText(this, newUsername + " already exists!", Toast.LENGTH_SHORT).show();
+    }
+
+    protected boolean userExists(String username) {
+        // Move cursor to start of table
+        loginCursor.moveToFirst();
+        // While not after the last row in the table
+        while (!loginCursor.isAfterLast()) {
+            // If username matches, return true
+            if (username.equalsIgnoreCase(loginCursor.getString(0))) {
+                return true;
+            }
+            // Move to next row
+            loginCursor.moveToNext();
+        }
+        // If code reaches to this point, return false as the username doesn't exist
+        return false;
     }
 }
